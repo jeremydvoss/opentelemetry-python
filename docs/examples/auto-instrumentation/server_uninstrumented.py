@@ -13,6 +13,11 @@
 # limitations under the License.
 
 from flask import Flask, request
+from os import environ
+from opentelemetry.environment_variables import (
+    OTEL_METRICS_EXPORTER,
+    OTEL_TRACES_EXPORTER,
+)
 
 app = Flask(__name__)
 
@@ -24,4 +29,8 @@ def server_request():
 
 
 if __name__ == "__main__":
+    print("JEREMYVOSS: server_uninstrumented")
+    print("JEREMYVOSS: PYTHONPATH: %s" % environ["PYTHONPATH"])
+    print("JEREMYVOSS: OTEL_TRACES_EXPORTER: %s" % environ[OTEL_TRACES_EXPORTER])
+    # print("JEREMYVOSS: OTEL_METRICS_EXPORTER: %s" % environ[OTEL_METRICS_EXPORTER])
     app.run(port=8082)
