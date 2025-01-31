@@ -14,8 +14,8 @@ from opentelemetry.sdk.resources import Resource
 
 logging.basicConfig(
     format="%(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-    # handlers=()
+    level=logging.INFO #Which log level applies
+    # handlers=() #Are the handlers set?
 )
 
 logger_provider = LoggerProvider(
@@ -31,10 +31,10 @@ set_logger_provider(logger_provider)
 exporter = ConsoleLogExporter()
 logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
 # environ.set('OTEL_LOG_LEVEL', 'warning')
-handler = LoggingHandler(logger_provider=logger_provider)
+handler = LoggingHandler(logger_provider=logger_provider) #Which log level applies
 
 # Attach OTLP handler to root logger
-logging.getLogger().addHandler(handler)
+logging.getLogger().addHandler(handler) #Are the handlers set?
 
 # Create different namespaced loggers
 # It is recommended to not use the root logger with OTLP handler
