@@ -245,6 +245,8 @@ class TestLoggingHandler(unittest.TestCase):
             self.assertEqual(log_record.span_id, span_context.span_id)
             self.assertEqual(log_record.trace_flags, span_context.trace_flags)
 
+    # TODO: Duplicate following tests with format from basic config
+
     def test_warning_without_formatter(self):
         processor, logger = set_up_test_logging(logging.WARNING)
         logger.warning("Test message")
@@ -283,6 +285,53 @@ class TestLoggingHandler(unittest.TestCase):
         log_record = processor.get_log_record(0)
         self.assertIsInstance(log_record.body, str)
 
+    def test_warning_basic_config_format(self):
+        logging.basicConfig(
+            format="BASIC CONFIG - %(name)s - %(levelname)s - %(message)s",
+        )
+        processor, logger = set_up_test_logging(logging.WARNING)
+        logger.warning("Test message")
+
+        log_record = processor.get_log_record(0)
+        self.assertEqual(log_record.body, "BASIC CONFIG - foo - WARNING - Test message")
+
+    def test_warning_basic_config_level_filter(self):
+        logging.basicConfig(
+            level=logging.ERROR,
+        )
+        processor, logger = set_up_test_logging()
+        logger.warning("Test message")
+
+        log_record = processor.get_log_record(0)
+        # TODO: Assert none because of filter
+        self.assertEqual(log_record.body, "BASIC CONFIG - foo - WARNING - Test message")
+
+    def test_warning_basic_config_level_conflict(self):
+        logging.basicConfig(
+            level=logging.ERROR,
+        )
+        processor, logger = set_up_test_logging(logging.WARNING)
+        logger.warning("Test message")
+
+        log_record = processor.get_log_record(0)
+        self.assertEqual(log_record.body, "BASIC CONFIG - foo - WARNING - Test message")
+
+    def test_warning_basic_config_format_conflict(self):
+        logging.basicConfig(
+            format="BASIC CONFIG - %(name)s - %(levelname)s - %(message)s",
+            level=logging.ERROR,
+        )
+        processor, logger = set_up_test_logging(
+            logging.WARNING,
+            formatter=logging.Formatter(
+                "%(name)s - %(levelname)s - %(message)s"
+            ),
+        )
+        logger.warning("Test message")
+
+        log_record = processor.get_log_record(0)
+        self.assertEqual(log_record.body, "foo - WARNING - Test message")
+
     @patch.dict(os.environ, {"OTEL_SDK_DISABLED": "true"})
     def test_handler_root_logger_with_disabled_sdk_does_not_go_into_recursion_error(
         self,
@@ -299,12 +348,16 @@ class TestLoggingHandler(unittest.TestCase):
         self.assertEqual(processor.emit_count(), 0)
 
 
-def set_up_test_logging(level, formatter=None, root_logger=False):
+def set_up_test_logging(level=None, formatter=None, root_logger=False):
     logger_provider = LoggerProvider()
     processor = FakeProcessor()
     logger_provider.add_log_record_processor(processor)
     logger = logging.getLogger(None if root_logger else "foo")
-    handler = LoggingHandler(level=level, logger_provider=logger_provider)
+    handler = None
+    if level: #TODO: may not be necessary if param defaults to none
+        handler = LoggingHandler(level=level, logger_provider=logger_provider)
+    else:
+        handler = LoggingHandler(logger_provider=logger_provider)
     if formatter:
         handler.setFormatter(formatter)
     logger.addHandler(handler)
