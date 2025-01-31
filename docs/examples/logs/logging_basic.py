@@ -35,16 +35,16 @@ logging.getLogger().addHandler(handler)
 logger1 = logging.getLogger("myapp.area1")
 logger2 = logging.getLogger("myapp.area2")
 
-logger1.debug("Quick zephyrs blow, vexing daft Jim.")
-logger1.info("How quickly daft jumping zebras vex.")
-logger2.warning("Jail zesty vixen who grabbed pay from quack.")
-logger2.error("The five boxing wizards jump quickly.")
+logger1.debug("logger 1 debug")
+logger1.info("logger 1 info")
+logger2.warning("logger 2 warning")
+logger2.error("logger 2 error")
 
 
 # Trace context correlation
 tracer = trace.get_tracer(__name__)
 with tracer.start_as_current_span("foo"):
     # Do something
-    logger2.error("Hyderabad, we have a pip lismajor problem.")
+    logger2.error("logger 2 error in span")
 
 logger_provider.shutdown()
