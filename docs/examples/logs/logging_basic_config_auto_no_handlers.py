@@ -11,30 +11,13 @@ from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 
+#AUTO INSTRUMENTATION
+# OTEL_LOG_LEVEL=WARNING
 
 logging.basicConfig(
     format="%(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-    # handlers=()
+    level=logging.INFO # WHICH LOG LEVEL APPLIES?
 )
-
-logger_provider = LoggerProvider(
-    resource=Resource.create(
-        {
-            "service.name": "shoppingcart",
-            "service.instance.id": "instance-12",
-        }
-    ),
-)
-set_logger_provider(logger_provider)
-
-exporter = ConsoleLogExporter()
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
-# environ.set('OTEL_LOG_LEVEL', 'warning')
-handler = LoggingHandler(logger_provider=logger_provider)
-
-# Attach OTLP handler to root logger
-logging.getLogger().addHandler(handler)
 
 # Create different namespaced loggers
 # It is recommended to not use the root logger with OTLP handler
